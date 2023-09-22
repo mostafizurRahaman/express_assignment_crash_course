@@ -84,12 +84,16 @@ module.exports.specificUpdate = (req, res, next) => {
 
          for (let i of userIds) {
             const user = updateUserInfo(i, name, address);
-            updatedUser.push(user);
+            if (user?.id) {
+               updatedUser.push(user);
+            } else {
+               updatedUser.push({ id: 1, message: "Not found the id one" });
+            }
             if (i === userIds.length) {
                processing = false;
             }
          }
-         if (updateUserInfo.length === userIds.length) {
+         if (updatedUser.length === userIds.length) {
             return res.status(200).send({
                success: true,
                message: "success",
@@ -99,7 +103,13 @@ module.exports.specificUpdate = (req, res, next) => {
       }
    } else if (typeof parseInt(id) === "number" || !isNaN(id)) {
       const userId = parseInt(id);
+      // const userData = readJsonFile();
+      // const isExits = userData.find((i) => i.id == id);
+
       const user = updateUserInfo(userId, name, address);
+      if (!user?.id) {
+         res.status(404).send({ success: false, message: "User id not found" });
+      }
       console.log("", user);
       res.send(user);
    }
